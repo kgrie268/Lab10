@@ -5,11 +5,14 @@
  */
 package filters;
 
+import businesslogic.UserService;
 import domainmodel.User;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -36,9 +39,13 @@ public class AdminFilter implements Filter {
         // ensure user is authenticated
         HttpSession session = ((HttpServletRequest)request).getSession();
         User user = new User();
-        user.setUsername((String)session.getAttribute("username"));
-        
-       
+        //user.setUsername((String)session.getAttribute("username"));
+        UserService ns = new UserService();
+        try {
+            user = ns.get((String)session.getAttribute("username"));
+        } catch (Exception ex) {
+            Logger.getLogger(AdminFilter.class.getName()).log(Level.SEVERE, null, ex);
+        }
         if (session.getAttribute("username") != null && user.getRole().getRoleID()== 1) {
             // yes, go onwards to the servlet or next filter
             chain.doFilter(request, response);
